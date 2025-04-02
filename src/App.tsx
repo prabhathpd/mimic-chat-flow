@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Analytics from "./pages/Analytics";
 import Conversations from "./pages/Conversations";
+import ConversationDetails from "./pages/ConversationDetails";
 import Team from "./pages/Team";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -44,6 +45,14 @@ const App = () => (
             element={
               <DashboardLayout>
                 <Conversations />
+              </DashboardLayout>
+            } 
+          />
+          <Route 
+            path="/conversation/:id" 
+            element={
+              <DashboardLayout>
+                <ConversationDetails />
               </DashboardLayout>
             } 
           />

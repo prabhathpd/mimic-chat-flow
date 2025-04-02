@@ -164,6 +164,9 @@ const CallLogs = () => {
   const [selectedCall, setSelectedCall] = useState(null);
   const audioRef = useRef(null);
   
+  // Create a ref to store the interval ID
+  const audioIntervalRef = useRef<number | null>(null);
+  
   // Filter calls based on search term and tab
   const filteredCalls = callLogsData.filter(call => {
     const matchesSearch = 
@@ -219,13 +222,19 @@ const CallLogs = () => {
     // In a real implementation, this would play/pause the audio
     if (isPlayingRecording) {
       // Pause logic
-      clearInterval(window.audioInterval);
+      if (audioIntervalRef.current !== null) {
+        window.clearInterval(audioIntervalRef.current);
+        audioIntervalRef.current = null;
+      }
     } else {
       // Play logic - simulating audio playback
-      window.audioInterval = setInterval(() => {
+      audioIntervalRef.current = window.setInterval(() => {
         setCurrentAudioTime((prev) => {
           if (prev >= audioDuration) {
-            clearInterval(window.audioInterval);
+            if (audioIntervalRef.current !== null) {
+              window.clearInterval(audioIntervalRef.current);
+              audioIntervalRef.current = null;
+            }
             setIsPlayingRecording(false);
             return 0;
           }
@@ -242,7 +251,10 @@ const CallLogs = () => {
   
   const handleDialogClose = () => {
     if (isPlayingRecording) {
-      clearInterval(window.audioInterval);
+      if (audioIntervalRef.current !== null) {
+        window.clearInterval(audioIntervalRef.current);
+        audioIntervalRef.current = null;
+      }
       setIsPlayingRecording(false);
     }
     setCurrentAudioTime(0);

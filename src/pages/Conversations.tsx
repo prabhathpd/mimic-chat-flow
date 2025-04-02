@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   Table,
   TableBody,
@@ -114,6 +115,7 @@ const conversationData = [
 
 const Conversations = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
   
   const filteredConversations = conversationData.filter(
     convo => 
@@ -137,6 +139,10 @@ const Conversations = () => {
       case "negative": return <ThumbsDown size={16} className="text-red-500" />;
       default: return null;
     }
+  };
+  
+  const handleViewConversation = (id) => {
+    navigate(`/conversation/${id}`);
   };
   
   return (
@@ -226,7 +232,13 @@ const Conversations = () => {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">View</Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleViewConversation(conversation.id)}
+                      >
+                        View
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
