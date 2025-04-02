@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { 
   Table,
   TableBody,
@@ -18,10 +18,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Phone, Clock, Play, DownloadCloud, FileText } from "lucide-react";
+import { Search, Filter, Phone, Clock, Play, Pause, DownloadCloud, FileText, Mic, MicOff, SkipBack, SkipForward } from "lucide-react";
 import { toast } from "sonner";
+import { Slider } from "@/components/ui/slider";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 
 // Mock data for call logs
 const callLogsData = [
@@ -30,39 +33,46 @@ const callLogsData = [
     prospect: "Alex Johnson",
     prospectPhone: "+1 (555) 123-4567",
     duration: "5m 23s",
+    durationSeconds: 323,
     status: "completed",
     result: "interested",
     timestamp: "Today, 14:35",
     hasRecording: true,
-    hasTranscript: true
+    hasTranscript: true,
+    recordingUrl: "https://example.com/recording1.mp3"
   },
   {
     id: "CALL-1235",
     prospect: "Morgan Smith",
     prospectPhone: "+1 (555) 234-5678",
     duration: "2m 45s",
+    durationSeconds: 165,
     status: "completed",
     result: "not interested",
     timestamp: "Today, 13:12",
     hasRecording: true,
-    hasTranscript: true
+    hasTranscript: true,
+    recordingUrl: "https://example.com/recording2.mp3"
   },
   {
     id: "CALL-1236",
     prospect: "Jamie Rodriguez",
     prospectPhone: "+1 (555) 345-6789",
     duration: "8m 18s",
+    durationSeconds: 498,
     status: "completed",
     result: "callback",
     timestamp: "Today, 11:50",
     hasRecording: true,
-    hasTranscript: true
+    hasTranscript: true,
+    recordingUrl: "https://example.com/recording3.mp3"
   },
   {
     id: "CALL-1237",
     prospect: "Taylor Chen",
     prospectPhone: "+1 (555) 456-7890",
     duration: "1m 12s",
+    durationSeconds: 72,
     status: "no-answer",
     result: "voicemail",
     timestamp: "Today, 10:27",
@@ -147,6 +157,12 @@ const CallLogs = () => {
   const [selectedTab, setSelectedTab] = useState("all");
   const [isViewingTranscript, setIsViewingTranscript] = useState(false);
   const [selectedCallId, setSelectedCallId] = useState("");
+  const [isPlayingRecording, setIsPlayingRecording] = useState(false);
+  const [isAudioDialogOpen, setIsAudioDialogOpen] = useState(false);
+  const [currentAudioTime, setCurrentAudioTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [selectedCall, setSelectedCall] = useState(null);
+  const audioRef = useRef(null);
   
   // Filter calls based on search term and tab
   const filteredCalls = callLogsData.filter(call => {
@@ -179,9 +195,58 @@ const CallLogs = () => {
     }
   };
   
-  const handlePlayRecording = (callId) => {
-    // In a real app, this would play the recording from Vapi
-    toast.success(`Playing recording for call ${callId}`);
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+  
+  const handlePlayRecording = (call) => {
+    setSelectedCall(call);
+    setIsAudioDialogOpen(true);
+    
+    // In a real implementation, this would load the actual audio file
+    setTimeout(() => {
+      if (audioRef.current) {
+        setAudioDuration(call.durationSeconds);
+      }
+    }, 500);
+  };
+  
+  const togglePlayPause = () => {
+    setIsPlayingRecording(!isPlayingRecording);
+    
+    // In a real implementation, this would play/pause the audio
+    if (isPlayingRecording) {
+      // Pause logic
+      clearInterval(window.audioInterval);
+    } else {
+      // Play logic - simulating audio playback
+      window.audioInterval = setInterval(() => {
+        setCurrentAudioTime((prev) => {
+          if (prev >= audioDuration) {
+            clearInterval(window.audioInterval);
+            setIsPlayingRecording(false);
+            return 0;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    }
+  };
+  
+  const handleAudioSeek = (value) => {
+    setCurrentAudioTime(value[0]);
+    // In a real implementation, this would seek the audio to the specified time
+  };
+  
+  const handleDialogClose = () => {
+    if (isPlayingRecording) {
+      clearInterval(window.audioInterval);
+      setIsPlayingRecording(false);
+    }
+    setCurrentAudioTime(0);
+    setIsAudioDialogOpen(false);
   };
   
   const handleDownloadRecording = (callId) => {
@@ -291,7 +356,7 @@ const CallLogs = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handlePlayRecording(call.id)}
+                              onClick={() => handlePlayRecording(call)}
                               title="Play Recording"
                             >
                               <Play size={16} />
@@ -326,6 +391,7 @@ const CallLogs = () => {
         </CardContent>
       </Card>
       
+      {/* Transcript Dialog */}
       <Dialog open={isViewingTranscript} onOpenChange={setIsViewingTranscript}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -334,13 +400,90 @@ const CallLogs = () => {
           <div className="mt-4 p-4 bg-gray-50 rounded-md whitespace-pre-wrap font-mono text-sm">
             {mockTranscript}
           </div>
-          <div className="flex justify-end mt-4">
+          <DialogFooter>
             <Button variant="outline" onClick={() => setIsViewingTranscript(false)}>Close</Button>
             <Button className="ml-2">
               <DownloadCloud size={16} className="mr-2" />
               Download Transcript
             </Button>
-          </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Audio Player Dialog */}
+      <Dialog open={isAudioDialogOpen} onOpenChange={handleDialogClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Call Recording</DialogTitle>
+          </DialogHeader>
+          
+          {selectedCall && (
+            <div className="space-y-4">
+              <div>
+                <div className="font-medium">{selectedCall.prospect}</div>
+                <div className="text-sm text-gray-500">{selectedCall.prospectPhone}</div>
+                <div className="text-sm text-gray-500">{selectedCall.timestamp} • {selectedCall.duration}</div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-md p-4">
+                <audio ref={audioRef} className="hidden">
+                  <source src={selectedCall.recordingUrl} type="audio/mp3" />
+                </audio>
+                
+                <div className="flex items-center justify-center space-x-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCurrentAudioTime(Math.max(0, currentAudioTime - 10))}
+                    disabled={currentAudioTime <= 0}
+                  >
+                    <SkipBack size={16} />
+                  </Button>
+                  
+                  <Button 
+                    className={`h-12 w-12 rounded-full ${isPlayingRecording ? 'bg-red-100 text-red-800 hover:bg-red-200' : 'bg-blue-100 text-blue-800 hover:bg-blue-200'}`}
+                    onClick={togglePlayPause}
+                  >
+                    {isPlayingRecording ? <Pause size={20} /> : <Play size={20} />}
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCurrentAudioTime(Math.min(audioDuration, currentAudioTime + 10))}
+                    disabled={currentAudioTime >= audioDuration}
+                  >
+                    <SkipForward size={16} />
+                  </Button>
+                </div>
+                
+                <div className="mt-4 space-y-2">
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>{formatTime(currentAudioTime)}</span>
+                    <span>{formatTime(audioDuration)}</span>
+                  </div>
+                  <Slider
+                    value={[currentAudioTime]}
+                    max={audioDuration}
+                    step={1}
+                    onValueChange={handleAudioSeek}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <Button variant="outline" className="flex items-center gap-2" onClick={() => handleViewTranscript(selectedCall.id)}>
+                  <FileText size={16} />
+                  <span>View Transcript</span>
+                </Button>
+                
+                <Button className="flex items-center gap-2" onClick={() => handleDownloadRecording(selectedCall.id)}>
+                  <DownloadCloud size={16} />
+                  <span>Download</span>
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

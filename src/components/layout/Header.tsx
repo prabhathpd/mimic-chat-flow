@@ -1,8 +1,9 @@
 
-import { Bell, Search, HelpCircle, Phone } from "lucide-react";
+import { Bell, Search, HelpCircle, Phone, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -28,11 +29,12 @@ const Header = () => {
         <Button 
           variant="outline" 
           size="sm" 
-          className="flex items-center gap-2"
+          className={`flex items-center gap-2 ${location.pathname === '/call-logs' ? 'bg-blue-50 border-blue-200' : ''}`}
           onClick={goToCallLogs}
         >
           <Phone size={16} className="text-dashboard-blue" />
           <span className="hidden md:inline">Call Logs</span>
+          <Badge variant="outline" className="ml-1 bg-green-50 text-green-700 hidden md:flex">Vapi</Badge>
         </Button>
         <Button variant="ghost" size="icon" aria-label="Help">
           <HelpCircle size={20} className="text-gray-600" />
