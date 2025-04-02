@@ -10,6 +10,7 @@ import Conversations from "./pages/Conversations";
 import Team from "./pages/Team";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import CallLogs from "./pages/CallLogs";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/layout/DashboardLayout";
 
@@ -59,6 +60,14 @@ const App = () => (
             element={
               <DashboardLayout>
                 <Reports />
+              </DashboardLayout>
+            } 
+          />
+          <Route 
+            path="/call-logs" 
+            element={
+              <DashboardLayout>
+                <CallLogs />
               </DashboardLayout>
             } 
           />

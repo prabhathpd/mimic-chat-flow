@@ -1,9 +1,17 @@
 
-import { Bell, Search, HelpCircle } from "lucide-react";
+import { Bell, Search, HelpCircle, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const goToCallLogs = () => {
+    navigate("/call-logs");
+  };
+  
   return (
     <header className="h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-white">
       <div className="flex items-center w-1/3">
@@ -17,6 +25,15 @@ const Header = () => {
       </div>
       
       <div className="flex items-center space-x-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="flex items-center gap-2"
+          onClick={goToCallLogs}
+        >
+          <Phone size={16} className="text-dashboard-blue" />
+          <span className="hidden md:inline">Call Logs</span>
+        </Button>
         <Button variant="ghost" size="icon" aria-label="Help">
           <HelpCircle size={20} className="text-gray-600" />
         </Button>
