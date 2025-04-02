@@ -5,6 +5,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Analytics from "./pages/Analytics";
+import Conversations from "./pages/Conversations";
+import Team from "./pages/Team";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/layout/DashboardLayout";
 
@@ -29,10 +34,7 @@ const App = () => (
             path="/analytics" 
             element={
               <DashboardLayout>
-                <div className="p-6">
-                  <h1 className="text-2xl font-bold">Analytics</h1>
-                  <p className="text-gray-500">Coming soon</p>
-                </div>
+                <Analytics />
               </DashboardLayout>
             } 
           />
@@ -40,10 +42,7 @@ const App = () => (
             path="/conversations" 
             element={
               <DashboardLayout>
-                <div className="p-6">
-                  <h1 className="text-2xl font-bold">Conversations</h1>
-                  <p className="text-gray-500">Coming soon</p>
-                </div>
+                <Conversations />
               </DashboardLayout>
             } 
           />
@@ -51,10 +50,7 @@ const App = () => (
             path="/team" 
             element={
               <DashboardLayout>
-                <div className="p-6">
-                  <h1 className="text-2xl font-bold">Team</h1>
-                  <p className="text-gray-500">Coming soon</p>
-                </div>
+                <Team />
               </DashboardLayout>
             } 
           />
@@ -62,10 +58,7 @@ const App = () => (
             path="/reports" 
             element={
               <DashboardLayout>
-                <div className="p-6">
-                  <h1 className="text-2xl font-bold">Reports</h1>
-                  <p className="text-gray-500">Coming soon</p>
-                </div>
+                <Reports />
               </DashboardLayout>
             } 
           />
@@ -73,10 +66,7 @@ const App = () => (
             path="/settings" 
             element={
               <DashboardLayout>
-                <div className="p-6">
-                  <h1 className="text-2xl font-bold">Settings</h1>
-                  <p className="text-gray-500">Coming soon</p>
-                </div>
+                <Settings />
               </DashboardLayout>
             } 
           />
